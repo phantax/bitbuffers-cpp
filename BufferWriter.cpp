@@ -104,6 +104,9 @@ BC BufferWriter::appendFromString(const string& str, BC max) {
         pos += 2;
         size_t end = str.find_first_not_of("0123456789ABCDEFabcdef", pos);
         string hexstr = str.substr(pos, end - pos);
+
+        std::cout << hexstr << endl;
+
         len += this->consumeHexString(hexstr);
         pos = end;
     }
@@ -272,17 +275,26 @@ BC BufferWriter::appendFromBase64String(const string& str, const BC& max) {
 BC BufferWriter::consumeBitString(string& str, BC max) {
 
     size_t n = str.find_first_not_of("01");
-    if (n == string::npos) {
+    if (n == 0) {
+        // >>> There is nothing to consume here >>>
         return 0;
     }
 
     BC len = 0;
+    size_t i = 0;
 
-    for (size_t i = 0; (i < n) && (max.isUndef() || len < max); i++) {
-        len += this->appendDigitBits(str[i], 2);
+    while ((n == string::npos || i < n)
+            && (max.isUndef() || len < max)) {
+        if (this->appendDigitBits(str[i], 2) > 0) {
+            len <<= 1;
+            i++;
+        } else {
+            break;
+        }
     }
-    /* TODO: do not erase more than consumed (if max is defined) */
-    str.erase(0, n);
+
+    // Remove from string what has been consumed
+    str.erase(0, i);
 
     return len;
 }
@@ -294,17 +306,26 @@ BC BufferWriter::consumeBitString(string& str, BC max) {
 BC BufferWriter::consumeHexString(string& str, BC max) {
 
     size_t n = str.find_first_not_of("0123456789ABCDEFabcdef");
-    if (n == string::npos) {
+    if (n == 0) {
+        // >>> There is nothing to consume here >>>
         return 0;
     }
 
     BC len = 0;
+    size_t i = 0;
 
-    for (size_t i = 0; (i < n) && (max.isUndef() || (len << 4) <= max); i++) {
-        len += this->appendDigitBits(str[i], 16);
+    while ((n == string::npos || i < n)
+            && (max.isUndef() || (len << 4) <= max)) {
+        if (this->appendDigitBits(str[i], 16) > 0) {
+            len <<= 4;
+            i++;
+        } else {
+            break;
+        }
     }
-    /* TODO: do not erase more than consumed (if max is defined) */
-    str.erase(0, n);
+
+    // Remove from string what has been consumed
+    str.erase(0, i);
 
     return len;
 }
