@@ -12,7 +12,7 @@ class Buffer : public BufferReader, public BufferWriter, public BufferModifier {
 private:
 
     // TODO: Add description
-    BC    capacity_;
+    BC capacity_;
 
 
 public:

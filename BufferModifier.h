@@ -32,6 +32,9 @@ public:
     virtual void clear() = 0;
 
     // TODO: Add description
+    virtual void zero() = 0;
+
+    // TODO: Add description
     virtual void truncate(const BC& length) = 0;
 
     /* --------------------------------------------------------------------- */

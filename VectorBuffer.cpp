@@ -210,6 +210,18 @@ void VectorBuffer::clear() {
 /*
  * ___________________________________________________________________________
  */
+void VectorBuffer::zero() {
+
+    for (vector<uint8_t>::iterator it = data_.begin();
+            it != data_.end(); ++it) {
+        *it = 0;
+    }
+}
+
+
+/*
+ * ___________________________________________________________________________
+ */
 void VectorBuffer::truncate(const BC& length) {
 
     /* TODO: allow to truncate to inter-byte lengths */
