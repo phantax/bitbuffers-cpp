@@ -118,7 +118,7 @@ BC BufferWriter::appendBytes(const uint8_t* const bytes, size_t max) {
  */
 BC BufferWriter::appendFromString(const string& str, BC max) {
 
-    // Amount of data considered
+    // The amount of data read
     BC len = 0;
 
     // Position within input string (ignore leading whitespaces)
@@ -129,22 +129,30 @@ BC BufferWriter::appendFromString(const string& str, BC max) {
 
     // Check radix
     if (prefix == "0b" || prefix == "0B") {
-        // >>> Binary >>>
+        // >>> Binary string >>>
+
+        // Skip radix-specifying
         pos += 2;
+
+        // Extract contiguous binary string
         size_t end = str.find_first_not_of("01", pos);
         string binstr = str.substr(pos, end - pos);
-        len += this->consumeBitString(binstr);
-        pos = end;
+
+        // Parse binary string
+        len = this->consumeBitString(binstr);
+
     } else if (prefix == "0x" || prefix == "0X") { 
-        // >>> Hex >>>
+        // >>> Hex string >>>
+
+        // Skip radix-specifying
         pos += 2;
+
+        // Extract contiguous hex string
         size_t end = str.find_first_not_of("0123456789ABCDEFabcdef", pos);
         string hexstr = str.substr(pos, end - pos);
 
-        std::cout << hexstr << endl;
-
-        len += this->consumeHexString(hexstr);
-        pos = end;
+        // Parse hex string
+        len = this->consumeHexString(hexstr);
     }
 
     return len;
@@ -375,6 +383,7 @@ BC BufferWriter::consumeBase64String(string& str, BC max) {
     size_t n = str.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz0123456789+/");
     if (n == string::npos) {
+        // >>> There is nothing to consume here >>>
         return 0;
     }
 
@@ -395,12 +404,12 @@ BC BufferWriter::consumeBase64String(string& str, BC max) {
         len += this->appendDigitBits(str[i], 64);
     }
 
-    /* add remaining bits */
+    // Add remaining bits
     len += this->appendDigitBits(str[nFullDigits], 64, true, BC(0, nRemBits));
 
-    /* TODO: remove and sanitize padding character */
+    // TODO: remove and sanitize padding character
 
-    /* TODO: do not erase more than consumed (if max is defined) */
+    // TODO: do not erase more than consumed (if max is defined)
     str.erase(0, n);
 
     return len;
